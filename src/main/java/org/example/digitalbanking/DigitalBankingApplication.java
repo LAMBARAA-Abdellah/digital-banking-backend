@@ -1,18 +1,16 @@
 package org.example.digitalbanking;
 
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.example.digitalbanking.dtos.BankAccountDTO;
+import org.example.digitalbanking.dtos.CurrentBankAccountDTO;
+import org.example.digitalbanking.dtos.SavingBankAccountDTO;
 import org.example.digitalbanking.entities.*;
-import org.example.digitalbanking.enums.AccountStatus;
-import org.example.digitalbanking.enums.OperationType;
 import org.example.digitalbanking.exceptions.BalanceNotSuffisendException;
 import org.example.digitalbanking.exceptions.BankAccountNotFoundException;
 import org.example.digitalbanking.exceptions.CustomerNotFoundException;
-import org.example.digitalbanking.mappers.CustomerDTO;
-import org.example.digitalbanking.repositories.*;
+import org.example.digitalbanking.dtos.CustomerDTO;
 import org.example.digitalbanking.services.BankAccountService;
 import org.example.digitalbanking.services.BankService;
 import org.springframework.boot.CommandLineRunner;
@@ -39,7 +37,7 @@ public class DigitalBankingApplication {
                 bankAccountService.saveCustomer(customer);
             });
 
-            // 2. Pour chaque client, créer des comptes + opérations
+            // 2. Pour chaque client, créer des comptes
             bankAccountService.listCustomers().forEach(customer -> {
                 try {
                     bankAccountService.saveCurrentBankAccount(Math.random() * 90000, 9000, customer.getId());
@@ -49,16 +47,29 @@ public class DigitalBankingApplication {
                 }
             });
 
-            // 3. Pour chaque compte, effectuer crédit + débit (protégé)
-            List<BankAccount> bankAccounts = bankAccountService.bankAccountList();
-            for (BankAccount bankAccount : bankAccounts) {
+            // 3. Pour chaque compte, effectuer crédit + débit
+            List<BankAccountDTO> bankAccounts = bankAccountService.bankAccountList();
+            for (BankAccountDTO bankAccount : bankAccounts) {
+                String accountId = null;
+
+                if (bankAccount instanceof SavingBankAccountDTO) {
+                    accountId = ((SavingBankAccountDTO) bankAccount).getId();
+                } else if (bankAccount instanceof CurrentBankAccountDTO) {
+                    accountId = ((CurrentBankAccountDTO) bankAccount).getId();
+                }
+
+                if (accountId == null) {
+                    System.err.println("⚠️ Compte inconnu, skipping...");
+                    continue;
+                }
+
                 for (int i = 0; i < 10; i++) {
                     try {
                         double creditAmount = 1000 + Math.random() * 12500;
-                        bankAccountService.credit(bankAccount.getId(), creditAmount, "Credit automatique");
+                        bankAccountService.credit(accountId, creditAmount, "Crédit automatique");
 
                         double debitAmount = 1000 + Math.random() * 9000;
-                        bankAccountService.debit(bankAccount.getId(), debitAmount, "Debit automatique");
+                        bankAccountService.debit(accountId, debitAmount, "Débit automatique");
 
                     } catch (BankAccountNotFoundException | BalanceNotSuffisendException e) {
                         System.err.println("⚠️ Erreur sur opération : " + e.getMessage());
@@ -67,4 +78,5 @@ public class DigitalBankingApplication {
             }
         };
     }
+
 }

@@ -1,4 +1,4 @@
-package org.example.digitalbanking.mappers;
+package org.example.digitalbanking.dtos;
 
 import lombok.Data;
 

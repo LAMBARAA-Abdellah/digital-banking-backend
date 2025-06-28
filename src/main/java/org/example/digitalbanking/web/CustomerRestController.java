@@ -3,7 +3,7 @@ package org.example.digitalbanking.web;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.digitalbanking.exceptions.CustomerNotFoundException;
-import org.example.digitalbanking.mappers.CustomerDTO;
+import org.example.digitalbanking.dtos.CustomerDTO;
 import org.example.digitalbanking.services.BankAccountService;
 import org.springframework.web.bind.annotation.*;
 
