@@ -16,10 +16,17 @@ import java.util.List;
 
 public class CustomerRestController {
     private BankAccountService bankAccountService;
+
     @GetMapping("/customers")
     public List<CustomerDTO> customers() {
         return bankAccountService.listCustomers();
     }
+
+    @GetMapping("/customers/search")
+    public List<CustomerDTO> searchCustomers(@RequestParam(name = "keyword", defaultValue = "") String keyword) {
+        return bankAccountService.searchCustomers(keyword);
+    }
+
 
     @GetMapping("/customers/{id}")
     public CustomerDTO getCustomer(@PathVariable(name = "id") Long customerId) throws CustomerNotFoundException {
