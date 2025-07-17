@@ -1,14 +1,10 @@
 package org.example.digitalbanking.web;
 
-import org.example.digitalbanking.dtos.AccountHistoryDTO;
-import org.example.digitalbanking.dtos.AccountOperationDTO;
-import org.example.digitalbanking.dtos.BankAccountDTO;
+import org.example.digitalbanking.dtos.*;
+import org.example.digitalbanking.exceptions.BalanceNotSuffisendException;
 import org.example.digitalbanking.exceptions.BankAccountNotFoundException;
 import org.example.digitalbanking.services.BankAccountService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,6 +38,26 @@ public class BankAcountRestAPI {
             ) throws BankAccountNotFoundException {
 
         return bankAccountService.getAccountHistory(accountId, page , size);
+    }
+
+    @PostMapping("/accounts/debit")
+    public DebitDTO debit(@RequestBody DebitDTO debitDTO) throws BankAccountNotFoundException, BalanceNotSuffisendException {
+        this.bankAccountService.debit(debitDTO.getAccountId(), debitDTO.getAmount(),debitDTO.getDescription());
+        return debitDTO;
+
+    }
+
+    @PostMapping("/accounts/credit")
+    public CreditDTO credit(@RequestBody CreditDTO creditDTO) throws BankAccountNotFoundException {
+        this.bankAccountService.credit(creditDTO.getAccountId(), creditDTO.getAmount(),creditDTO.getDescription());
+        return creditDTO;
+
+    }
+
+    @PostMapping("/accounts/transfer")
+    public void transfer(@RequestBody TransferRequestDTO transferRequestDTO) throws BankAccountNotFoundException, BalanceNotSuffisendException {
+        this.bankAccountService.transfer(transferRequestDTO.getAccountSource(), transferRequestDTO.getAccountDestination(), transferRequestDTO.getAmount());
+
     }
 
 }
